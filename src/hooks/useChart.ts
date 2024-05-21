@@ -18,11 +18,13 @@ export const useChart = () => {
   )
 
   const data = React.useMemo((): Series[] => {
-    const rawData: Record<string, number> = usages.reduce(
+    const costByDays: Record<string, number> = usages.reduce(
       (acc: Record<string, number>, usage: Usage) => {
+        /* checking filters */
         if (model !== Models.all && model !== usage.model) return acc
         if (type !== Types.all && type !== usage.type) return acc
 
+        /* accumulating cost of usage by day */
         acc[usage.created_at] =
           (acc[usage.created_at] ?? 0) + getUsageCost(usage)
         return acc
@@ -33,7 +35,7 @@ export const useChart = () => {
     return [
       {
         label: 'Cost',
-        data: Object.entries(rawData)
+        data: Object.entries(costByDays)
           .map((item) => ({
             date: stringToDate(item[0]),
             cost: Math.round(item[1]),
